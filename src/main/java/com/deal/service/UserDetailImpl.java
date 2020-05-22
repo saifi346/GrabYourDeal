@@ -1,17 +1,20 @@
 package com.deal.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.deal.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserDetailImpl implements UserDetails {
+
+	private static final long serialVersionUID = 1L;
 
 	private String id;
 
@@ -34,7 +37,9 @@ public class UserDetailImpl implements UserDetails {
 	}
 
 	public static UserDetailImpl build(User user) {
-		List<GrantedAuthority> authorities = new ArrayList<>();
+		List<GrantedAuthority> authorities = user.getRoles().stream()
+				.map(role->new SimpleGrantedAuthority(role.getName().name()))
+				.collect(Collectors.toList());
 
 		return new UserDetailImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);
 	}
