@@ -56,6 +56,17 @@ public class productController {
 		return new ResponseEntity<>(product, new HttpHeaders(), HttpStatus.OK);
 	}
 
+	@GetMapping("/product/search/{productName}")
+	public ResponseEntity<Product[]> searchProductsByName(@PathVariable("productName") String productName) {
+		Product[] products = restTemplate.getForObject(url + "/product/search/" + productName, Product[].class);
+		for(Product product : products) {
+        	byte[] bytes = restTemplate.getForObject(url + "/retreive/" + product.getTitle(), byte[].class);
+    		String encoded = Base64.getEncoder().encodeToString(bytes);
+    		product.setEncodedImage(encoded);
+        }
+		return new ResponseEntity<>(products, new HttpHeaders(), HttpStatus.OK);
+	}
+	
 	@GetMapping("/product/category/{category}")
 	public ResponseEntity<Product[]> adminAccess(@PathVariable("category") String category) {
 		Product[] products = restTemplate.getForObject(url + "/category/" + category, Product[].class);
@@ -98,6 +109,13 @@ public class productController {
 	public ResponseEntity<?> updateProduct(@PathVariable("productName") String productName,
 			@RequestBody Product product) {
 		restTemplate.put(url + "/updateProduct/" + productName, product);
+		return new ResponseEntity<>(product, new HttpHeaders(), HttpStatus.OK);
+	}
+	
+	@PutMapping("/updateProductStock/{productName}")
+	public ResponseEntity<?> updateProductStock(@PathVariable("productName") String productName,
+			@RequestBody Product product) {
+		restTemplate.put(url + "/updateProductStock/" + productName, product);
 		return new ResponseEntity<>(product, new HttpHeaders(), HttpStatus.OK);
 	}
 
